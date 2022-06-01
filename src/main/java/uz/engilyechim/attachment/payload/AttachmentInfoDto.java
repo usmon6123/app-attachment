@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class AttachmentInfoDto {
 
+    private Long id;
+
     private String name;
 
     private String originalName;
@@ -16,4 +18,12 @@ public class AttachmentInfoDto {
     private String contentType;
 
     private String path;
+
+    private Long size;
+
+    public AttachmentInfoDto(String originalName, String contentType, Long size) {
+        this.originalName = originalName;
+        this.contentType = contentType;
+        this.size = size;
+    }
 }

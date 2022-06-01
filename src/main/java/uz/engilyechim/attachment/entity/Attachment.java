@@ -16,16 +16,16 @@ import javax.persistence.Entity;
 @Entity
 public class Attachment extends AbsLongEntity {
 
+    private String originalName;//car.jpg lorem.png
 
     // @Column(nullable = false,unique = true)
     private String name;  // papkani ichiga saqlash un
 
-    private String originalName;//car.jpg lorem.png
+    private Long size;
 
     private String contentType;
 
     //    BU FILE SYSTEMGA SAQLAGANDA KK BOLADI  // papkani ichidan topish un
     @Column(nullable = false)
     private String path;    // PAPKANI ICHIDAN TURGAN JOYIGACHA SAQLAYDI EX: C:\UZ\PDP\ATTACHMENT\FILES\SERDT5666TGS.JPEG
-
 }

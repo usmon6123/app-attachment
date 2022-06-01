@@ -18,4 +18,6 @@ public abstract class AbsLongEntity extends AbsDateAudit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
+
 }

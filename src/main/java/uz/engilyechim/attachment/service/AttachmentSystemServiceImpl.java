@@ -49,7 +49,7 @@ public class AttachmentSystemServiceImpl implements AttachmentSystemService {
         Attachment attachment = createAttachmentToFile(file,folder);
 
         //ATTACHMENTNI MALUMOTLARINI DB GA SAQLAYAPDI
-        attachmentRepository.save(attachment);
+        Attachment save = attachmentRepository.save(attachment);
 
         //ATTACHMENTNI BAYTINI SAQLASH UCHUN YO'L YASAYDI
         Path path = createPath(attachment.getName(), folder);
@@ -57,7 +57,7 @@ public class AttachmentSystemServiceImpl implements AttachmentSystemService {
         //ATTACHMENTNI BAYTINI SAQLANYAPDI
         fileSaveSystem(file,path);
 
-        return ApiResult.successResponse("SUCCESS_UPLOAD_ATTACHMENT");
+        return ApiResult.successResponse("SUCCESS_UPLOAD_ATTACHMENT id = "+save.getId());
     }
 
 
@@ -127,11 +127,12 @@ public class AttachmentSystemServiceImpl implements AttachmentSystemService {
         return ApiResult.successResponse("DELETED_ATTACHMENT");}
 
     @Override
+    @Transactional
     public ApiResult<?> deleteList(List<Long> ids) {
 
         //ID LISTDAGI IDLAR ORQALI BAZADAN ATTACHMENTLARNI OLIB KELIBERDAI
         List<Attachment> attachmentList = attachmentListByIds(ids);
-
+        if (attachmentList.isEmpty())throw new RestException("ATTACHMENT_LIST_EMPTY",HttpStatus.NOT_FOUND);
         //HAR BIR ID GA TEGISHLI FAYLLARNI SISTEMADAN O'CHIRYAPDI
         for (Attachment attachment : attachmentList) {
             deleteFileFromSystem(attachment);
@@ -165,7 +166,7 @@ public class AttachmentSystemServiceImpl implements AttachmentSystemService {
             Path path = Paths.get(file.getPath());
             return Files.readAllBytes(path);
         } catch (IOException e) {
-            throw RestException.notFound(("FILE"));
+            throw RestException.notFound(("ATTACHMENT_NOT_FOUND"));
         }
     }
 
@@ -203,6 +204,7 @@ public class AttachmentSystemServiceImpl implements AttachmentSystemService {
 
         attachment.setContentType(file.getContentType());
         attachment.setOriginalName(originalFilename);
+        attachment.setSize(file.getSize());
 
         //SYSTEMAGA(PAPKA ICHIGA) FILE UN UNIQUE NAME YASAB olyapmiz
         String fileName = createFileName(originalFilename);
@@ -281,7 +283,7 @@ public class AttachmentSystemServiceImpl implements AttachmentSystemService {
         try {
             Files.delete(Path.of(attachment.getPath()));
         } catch (IOException e) {
-            throw RestException.notFound(("FILE"));
+            throw RestException.notFound(("FILE_NOT_FOUND"));
         }
 
     }
