@@ -132,14 +132,14 @@ public class AttachmentSystemServiceImpl implements AttachmentSystemService {
 
         //ID LISTDAGI IDLAR ORQALI BAZADAN ATTACHMENTLARNI OLIB KELIBERDAI
         List<Attachment> attachmentList = attachmentListByIds(ids);
-        if (attachmentList.isEmpty())throw new RestException("ATTACHMENT_LIST_EMPTY",HttpStatus.NOT_FOUND);
+
         //HAR BIR ID GA TEGISHLI FAYLLARNI SISTEMADAN O'CHIRYAPDI
         for (Attachment attachment : attachmentList) {
             deleteFileFromSystem(attachment);
         }
 
         //HAR BIR ID GA TEGISHLI FAYLLARNINGINFOSINI BAZADAN O'CHIRYAPDI
-        attachmentRepository.deleteAllById(ids);
+        attachmentRepository.deleteAll(attachmentList);
 
         return ApiResult.successResponse("DELETED_ATTACHMENT_LIST_BY_IDS");
     }
@@ -166,7 +166,7 @@ public class AttachmentSystemServiceImpl implements AttachmentSystemService {
             Path path = Paths.get(file.getPath());
             return Files.readAllBytes(path);
         } catch (IOException e) {
-            throw RestException.notFound(("ATTACHMENT_NOT_FOUND"));
+            throw RestException.notFound(("ATTACHMENT_PATH_NOT_FOUND"));
         }
     }
 
@@ -283,7 +283,7 @@ public class AttachmentSystemServiceImpl implements AttachmentSystemService {
         try {
             Files.delete(Path.of(attachment.getPath()));
         } catch (IOException e) {
-            throw RestException.notFound(("FILE_NOT_FOUND"));
+            throw RestException.notFound(("FILE_PATH_NOT_FOUND"));
         }
 
     }

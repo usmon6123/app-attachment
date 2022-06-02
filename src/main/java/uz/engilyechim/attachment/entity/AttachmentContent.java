@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import uz.engilyechim.attachment.entity.template.AbsLongEntity;
 
 import javax.persistence.Entity;
@@ -18,7 +20,8 @@ public class AttachmentContent extends AbsLongEntity {
 
     private byte[] bytes;
 
-    @OneToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToOne()
     private Attachment attachment;
 
 }

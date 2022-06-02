@@ -12,7 +12,7 @@ import uz.engilyechim.attachment.exception.RestException;
 import uz.engilyechim.attachment.mapper.AttachmentMapper;
 import uz.engilyechim.attachment.payload.ApiResult;
 import uz.engilyechim.attachment.payload.AttachmentContentDto;
-import uz.engilyechim.attachment.payload.AttachmentInfoDto;
+import uz.engilyechim.attachment.payload.AttachmentInfoByDbDto;
 import uz.engilyechim.attachment.repository.AttachmentContentRepository;
 import uz.engilyechim.attachment.repository.AttachmentRepository;
 
@@ -45,7 +45,7 @@ public class AttachmentDbServiceImpl implements AttachmentDbService {
         //ATTACHMENTNI CONTENTINI(BYTENI) BAZAGA SAQLABERADI
         savedAttachmentContentToDb(file, savedAttachment);
 
-        return ApiResult.successResponse("SUCCESS_UPLOAD_ATTACHMENT");
+        return ApiResult.successResponse("SUCCESS_UPLOAD_ATTACHMENT id = " + savedAttachment.getId());
     }
 
 
@@ -71,9 +71,9 @@ public class AttachmentDbServiceImpl implements AttachmentDbService {
         Attachment attachment = returnAttachment(id);
 
         //ATTACHMENTDAN BIZGA KERAK FIELDLARNI OLIB DTO YASABERADI
-        AttachmentInfoDto attachmentInfoDto = attachmentMapper.attachmentToDto(attachment);
+        AttachmentInfoByDbDto attachmentInfoByDbDto = attachmentMapper.attachmentToDto(attachment);
 
-        return ApiResult.successResponse(attachmentInfoDto);
+        return ApiResult.successResponse(attachmentInfoByDbDto);
     }
 
     @Override
@@ -100,27 +100,22 @@ public class AttachmentDbServiceImpl implements AttachmentDbService {
 
         if (attachments.isEmpty())return ApiResult.successResponse(new ArrayList<>());
 
-        List<AttachmentInfoDto> attachmentInfoDtos = attachments.stream().map(attachmentMapper::attachmentToDto).collect(Collectors.toList());
+        List<AttachmentInfoByDbDto> infoByDbDtos = attachments.stream().map(attachmentMapper::attachmentToDto).collect(Collectors.toList());
 
-        return ApiResult.successResponse(attachmentInfoDtos);
+        return ApiResult.successResponse(infoByDbDtos);
     }
 
-    @Override//todo optimallashtirish kerak
+    @Override
     public ApiResult<?> delete(Long id) {
-
-        attachmentContentRepository.deleteByAttachmentId(id);
+        attachmentRepository.findById(id).orElseThrow(() -> new RestException("ATTACHMENT_NOT_FOUND",HttpStatus.NOT_FOUND));
         attachmentRepository.deleteById(id);
         return ApiResult.successResponse("DELETED_ATTACHMENT");
     }
 
-    @Override//todo optimallashtirish kerak
+    @Override
     public ApiResult<?> deleteList(List<Long> ids) {
-        for (Long id : ids) {
-            attachmentContentRepository.deleteByAttachmentId(id);
-        }
-        List<Attachment> attachments = returnAttachmentList(ids);
-        attachmentRepository.deleteAll(attachments);
-
+        List<Attachment> attachmentList = attachmentRepository.findAllById(ids);
+        attachmentRepository.deleteAll(attachmentList);
         return ApiResult.successResponse("DELETED_ATTACHMENT_LIST");
     }
 
@@ -136,15 +131,10 @@ public class AttachmentDbServiceImpl implements AttachmentDbService {
         return attachmentRepository.findAllById(ids);
     }
 
-    //ID ORQALI BAZADAGI ATTACHMENT_CONTENTNI QAYTARADI AKS HOLDA THROW
-    private AttachmentContent returnAttachmentContent(Long attachmentId){
-        return attachmentContentRepository.findByAttachmentId(attachmentId).orElseThrow(() -> new RestException("ATTACHMENT_NOT_FOUND", HttpStatus.NOT_FOUND));
-    }
 
-    //todo to'girlash kerak bazaga ko'p borib kelyapdi
     //IDLAR BO'YICHA BAZADAN ATTACHMENT_CONTENTLARNI OLIB KELIBERADI
     private List<AttachmentContent> returnAttachmentContentList(List<Long> ids){
-         return ids.stream().map(this::returnAttachmentContent).collect(Collectors.toList());
+        return attachmentContentRepository.findAllByIds(ids);
     }
 
     //ATTTACHMENTNING CONTENTINI QAYTARADIGAN METHOD

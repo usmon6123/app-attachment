@@ -28,4 +28,5 @@ public class Attachment extends AbsLongEntity {
     //    BU FILE SYSTEMGA SAQLAGANDA KK BOLADI  // papkani ichidan topish un
     @Column(nullable = false)
     private String path;    // PAPKANI ICHIDAN TURGAN JOYIGACHA SAQLAYDI EX: C:\UZ\PDP\ATTACHMENT\FILES\SERDT5666TGS.JPEG
+
 }
